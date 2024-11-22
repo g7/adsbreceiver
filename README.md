@@ -1,114 +1,45 @@
-# Fuel Ignition
-**Ignition & Combustion Config Generator.**
-Easily generate new or edit existing Ignition configs.
+# ADS-B MicroOS Config Generator
 
-No more fiddling around with JSON or Butane.
+This web app allows you to configure a simple ADS-B receiver based on openSUSE MicroOS
+and openSUSE Tumbleweed-based containers.  
+Heavily based on openSUSE's [Fuel Ignition](https://opensuse.github.io/fuel-ignition/).
 
-https://opensuse.github.io/fuel-ignition/
+To access the web app, open this link: https://g7.github.io/adsbreceiver/
 
+## Current status
 
-<img src="src/assets/template/img/readme/edit-page-1.png" width="225"> <img src="src/assets/template/img/readme/edit-page-2.png" width="150"> 
+* Able to feed to various feeds using the Beast protocol (Airplanes.live, ADSB.fi, ADSB.lol, ADSBExchange.com, Flyitalyadsb.com, Planespotters.net)
+* Able to feed to Flightradar24 (initial-setup available but NOT tested! I've only tested using a key I already had)
+* Local web interface ([tar1090](https://github.com/wiedehopf/tar1090)) to easily visualize the received data
+* Cockpit pre-configured to ease maintenance
 
-## Local Development
+[`readsb`](https://github.com/wiedehopf/readsb) is the dumper/forwarder used.
 
-```bash
-npm install
-npm run dev
-```
+## What is needed
 
-## Local Development in a container
+* One RTL-SDR capable ADS-B receiver (RTL2832U DVB-T dongles might work)
+* One Raspberry Pi or other SBC supported by openSUSE MicroOS
+* One microSD card where to install openSUSE MicroOS
+* One USB drive to use for the initial ignition+combustion bootstrap
+* Working, wired internet connection
 
-```
-$ sudo zypper in podman
-$ make
-$ podman run --rm --network=host fuelignition:latest
+Open the [Web app](https://g7.github.io/adsbreceiver/) for further instructions
 
-> fuel-ignition@1.0 dev
-> vite
+## What's missing
 
-Pre-bundling dependencies:
-  vue
-  @formkit/vue
-  bootstrap
-  vue-router
-(this will be run only when your dependencies or config have changed)
+* MLAT (Multilateration) support. I've packaged mlat-client already, but I have to wire it up
+* FlightAware support
 
-  vite v2.6.14 dev server running at:
+## Acknowledgments
 
-  > Local: http://localhost:3000/fuel-ignition/
-  > Network: use `--host` to expose
+I just put all of these things together as a fun [SUSE Hack Week 24](https://hackweek.opensuse.org/24/projects/ads-b-receiver-with-microos) project.
 
-  ready in 472ms.
+If you want to have something more ready and battle-tested, consider using these instead:
+* [ADSB.im](https://www.adsb.im/home)
+* [SDR-Enthusiasts Docker guide](https://sdr-enthusiasts.gitbook.io/ads-b)
 
-$ firefox http://localhost:3000/fuel-ignition/
-```
+Thanks a lot to everyone who contributed to dump1090/readsb, tar1090, mlat-client
+and the tar1090-db database!
 
-## <img src="src/assets/template/img/readme/rancher_desktop.jpeg" width="20"> Local Development in Rancher-Desktop 
-Add your own version tag as required, in this example v0.1 is used.
-
-```
-$ nerdctl --namespace k8s.io build -t fuelignition:v0.1 --build-arg CONTAINER_USERID=`id -u` .
-```
-
-Once the build has completed, the image should appear in Rancher-Desktop -> Images;
-
-<img src="src/assets/template/img/readme/rancher_desktop_images.png" width="450">
-
-```
-$ kubectl run --image fuelignition:v0.1 fuelignition
-pod/fuelignition created
-
-$ kubectl get pods
-NAME           READY   STATUS    RESTARTS   AGE
-fuelignition   1/1     Running   0          27s
-
-$ kubectl port-forward pods/fuelignition 3000:3000 > /dev/null 2>&1 &
-
-$ xdg-open http://localhost:3000/fuel-ignition/
-
-```
-
-Cleaning up
-
-```
-$ pkill -f "port-forward"
-$ kubectl delete pod fuelignition
-```
-The created fuelignition image(s) can be deleted via Rancher-Desktop -> Images.
-
-## Build for production
-
-```bash
-npm run build
-```
-dist/ contains a minified and cleaned up production build
-
-## Testing
-
-We are using Cypress (https://www.cypress.io/) for e2e tests (End-to-end tests). So we are
-simulating the user input and checking the results.
-
-Interactive testing:
-
-```bash
-npm run cy
-```
-
-Running all tests:
-
-```bash
-npm run cy:run
-```
-
-In order to start the tests, the fuel-ignition server has to be started
-before:
-```bash
-npm run dev
-```
-
-## Notice
-
-Fuel-ignition is still in early development and will most likely undergo massive changes.
-I'm always open to feedback and enjoy hearing your thoughts. Cheers!
-
-<img alt="human sitting in a tent next to a fire" src="src/assets/template/img/readme/undraw_camping_noc8.svg" width="250">
+Nevertheless, I will continue using MicroOS + my containers on my Raspberry Pi, and
+will try my best to keep all the tools up-to-date :)
