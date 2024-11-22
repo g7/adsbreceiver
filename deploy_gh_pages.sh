@@ -9,4 +9,4 @@ git add dist/ -f
 git add dist/404.html
 git commit -m "feat(GitHub Pages): deploy latest change"
 git subtree push --prefix dist origin gh-pages
-git checkout main
+git checkout adsbreceiver

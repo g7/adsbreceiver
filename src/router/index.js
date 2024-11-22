@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-const base = "/fuel-ignition/";
+const base = "/adsbreceiver/";
 
 import HomeView from "../pages/HomeView.vue";
 import EditView from "../pages/EditView.vue";

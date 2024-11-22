@@ -67,17 +67,6 @@
 
       <p>{{ readableTOTPSecret(secret) }}</p>
     </div>
-
-    <div v-if="index === 1">
-      <FormKit
-        :name="formKey('runs_on_suse')"
-        label="Mount /home"
-        validation="required"
-        type="checkbox"
-        validation-behavior="live"
-        help="Required on SUSE related systems for creating users not named root. Otherwise, applying the Ignition config will fail"
-      />
-    </div>
   </div>
 </template>
 
@@ -125,7 +114,7 @@ export default {
           }
 
           // append config for mounting /home, since otherwise users not named root will cause an ignition emergency mode
-          if (formValue("runs_on_suse", id) === true) {
+          if (formValue("name", id) === "root") {
             if (json.storage === undefined) {
               json.storage = {};
             }
@@ -261,7 +250,7 @@ export default {
           user.hash_type  = formValue("hash_type", id)
           user.passwd = formValue("passwd", id)
           user.ssh_keys = formValue("ssh_keys", id)
-          user.runs_on_suse = formValue("runs_on_suse", id)
+          user.runs_on_suse = user.name === "root" ? true : false
           user.totp_enabled = formValue("totp_enabled", id)
           if (formValue("totp_enabled", id)) {
             user.totp_secret = formValue("totp_secret", id)
@@ -310,7 +299,7 @@ export default {
     },
     renderQRCode: function (secret, username, canvas) {
       const secretDecoded = this.totpSecretToBase32(secret);
-      QRCode.toCanvas(canvas, "otpauth://totp/" + username + "?secret=" + secretDecoded + "&issuer=Fuel%20Ignition", function (error) {
+      QRCode.toCanvas(canvas, "otpauth://totp/" + username + "?secret=" + secretDecoded + "&issuer=ADSB%20Receiver", function (error) {
         if (error) alert(error);
       })
     },

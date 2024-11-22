@@ -2,7 +2,7 @@
   <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
     <div class="container px-4 px-lg-5">
-      <router-link class="navbar-brand" to="/">Fuel Ignition 🚀</router-link>
+      <router-link class="navbar-brand" to="/">ADS-B Receiver ✈️</router-link>
       <button
         class="navbar-toggler navbar-toggler-right"
         type="button"
@@ -20,9 +20,6 @@
             <a class="nav-link" href="#/">Start</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#about">About</a>
-          </li>
-          <li class="nav-item">
             <a
               class="nav-link"
               href="https://microos.opensuse.org/"
@@ -34,10 +31,10 @@
           <li class="nav-item">
             <a
               class="nav-link"
-              href="https://coreos.github.io/ignition/"
+              href="https://github.com/g7/adsbreceiver/"
               target="_blank"
               rel="noopener noreferrer"
-              >Ignition Docs</a
+              >GitHub</a
             >
           </li>
         </ul>

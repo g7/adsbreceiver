@@ -18,11 +18,12 @@ import DebugAddBytesForm from "@/components/forms/DebugAddBytesForm.vue";
 import DebugAnalyzeImgForm from "@/components/forms/DebugAnalyzeImgForm.vue";
 import AddKeyboardForm from "@/components/forms/AddKeyboardForm.vue";
 import AddTimezoneForm from "@/components/forms/AddTimezoneForm.vue";
-import RegistrationForm from "@/components/forms/RegistrationForm.vue";
-import SaltForm from "@/components/forms/SaltForm.vue";
-import S390ChannelForm from "@/components/forms/S390ChannelForm.vue";
 import InstallPackageForm from "@/components/forms/InstallPackageForm.vue";
 import CombAddRawBash from "../components/forms/CombAddRawBash.vue";
+
+import Flightradar24Form from "../components/forms/Flightradar24Form.vue";
+import AntennaForm from "../components/forms/AntennaForm.vue";
+import BeastForm from "../components/forms/BeastForm.vue";
 
 const formComponents = [
   AddUsersForm,
@@ -35,17 +36,18 @@ const formComponents = [
   ModifyServiceForm,
   AddKeyboardForm,
   AddTimezoneForm,
-  RegistrationForm,
-  SaltForm,
-  S390ChannelForm,
   InstallPackageForm,
   CombAddRawBash,
+
+  Flightradar24Form,
+  AntennaForm,
+  BeastForm,
 
   DebugAddBytesForm,
   DebugAnalyzeImgForm,
 ];
 
-const formData = ref({ debug: false, save_to: "fuel-ignition.json" });
+const formData = ref({ debug: false, save_to: "adsbreceiver.json" });
 const importedData = ref({})
 
 // setup optional Watchers if a FormComponent needs it
@@ -154,6 +156,13 @@ const toCombustionScript = (formData) => {
     json.output += json.combustion
   }
 
+  json.output += 'zypper --non-interactive --gpg-auto-import-keys ar --refresh --check https://download.opensuse.org/repositories/home:/epaolantonio:/adsbreceiver/openSUSE_Tumbleweed/home:epaolantonio:adsbreceiver.repo\n';
+  json.output += 'zypper --non-interactive --gpg-auto-import-keys refresh\nzypper --non-interactive install adsbreceiver\n';
+  json.output += 'systemctl enable cockpit.socket\n';
+  json.output += 'systemctl enable chrony-wait.service\n';
+  json.output += 'setsebool -P container_use_devices=true\n';
+  json.output += 'echo "MACHINE_UUID=$(uuidgen -r)" > /etc/adsbreceiver-uuid\n';
+
   json.output += '\n# Leave a marker\necho "Configured with combustion" > /etc/issue.d/combustion';
 
   json.output += '\n\n# Close outputs and wait for tee to finish.\nexec 1>&- 2>&-; wait;';
@@ -197,14 +206,49 @@ const exportSettings= (formData) => {
       <div class="container mt-5 px-0">
         <div class="row gx-4 gx-lg-5 justify-content-center">
           <div class="col-lg-8 col-xl-6 text-white text-center">
-            <h1 class="mt-5">Config Generator</h1>
+            <h1 class="mt-5">ADS-B MicroOS Config Generator</h1>
             <div class="d-grid mb-5">
-              <img
-                class="text-center mx-auto w-50"
-                src="@/assets/template/img/undraw_programming_re_kg9v.svg"
-              />
+              <p style="font-size: 100px">🛫</p>
             </div>
           </div>
+        </div>
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-lg-8 col-xl-6 text-white text-right">
+              This web app allows you to configure a simple ADS-B receiver based
+              on openSUSE MicroOS and openSUSE Tumbleweed-based containers.<br /><br />
+
+              <a href="https://github.com/wiedehopf/tar1090">tar1090</a> is the built-in web interface.<br /><br />
+
+              If you wish so, you can also set-up feeding to some non-profit and for-profit aggregators, including Flightradar24.<br /><br />
+
+              This has been only tested with a Raspberry Pi 3 Model B so far.<br /><br />
+
+              What is needed:<br /><br />
+
+              <ul> 
+                <li>One RTL-SDR capable ADS-B receiver (RTL2832U DVB-T dongles might work)</li>
+                <li>One Raspberry Pi or other SBC supported by openSUSE MicroOS</li>
+                <li>One microSD card where to install openSUSE MicroOS</li>
+                <li>One USB drive to use for the initial ignition+combustion bootstrap</li>
+                <li>Working, wired internet connection</li>
+              </ul>
+
+              To start, generate a configuration from this page, convert the configuration to an image by pressing the 'Convert and Download' button and
+              flash it in an USB drive.<br /><br />
+
+              Then, flash the <a href="https://download.opensuse.org/ports/aarch64/tumbleweed/appliances/openSUSE-MicroOS.aarch64-ContainerHost-RaspberryPi.raw.xz">RaspberryPi MicroOS Base System + Container Runtime Environment image</a> in a microSD.<br /><br />
+
+              Plug the USB drive, the RTL-SDR capable ADS-B receiver (if possible) and the MicroOS microSD in the Raspberry Pi. Ensure to connect the Raspbery Pi to the internet using a wired cable.<br /><br />
+
+              If you weren't able to plug the ADS-B receiver during the initial bootstrap (due to the small space available), once Cockpit is up, unplug the USB drive and plug the receiver instead. Then reboot, and everything should now be properly set-up.<br /><br />
+
+              Start the Pi, and wait ~15 minutes. If everything went right, you will be able to access the tar1090 interface at port :8080 and the Cockpit administration interface at port :9090.<br /><br />
+
+              This interface is based on <a href="https://opensuse.github.io/fuel-ignition/">Fuel Ignition</a> web app.
+            <hr class="divider-long" />
+
+          </div>
+
         </div>
   
         <div class="row gx-4 gx-lg-5 justify-content-center mb-5">
@@ -257,41 +301,40 @@ const exportSettings= (formData) => {
 		<hr class="divider-long" />
 
                 <ExpandableComponent
-                  title="Change Storage"
-                  :displaysAtBegin="elementNumber(ChangeStorageForm)"
-                >
-                  <ChangeStorageForm></ChangeStorageForm>
-                </ExpandableComponent>
-
-		<hr class="divider-long" />
-
-                <ExpandableComponent
                   title="Add Network Interface"
                   :displaysAtBegin="elementNumber(AddNetworkForm)"
                 >
                   <AddNetworkForm></AddNetworkForm>
                 </ExpandableComponent>
 
-		<ExpandableComponent
-                  title="Register Products"
-                  :displaysAtBegin="elementNumber(RegistrationForm)"
-                >
-                  <RegistrationForm></RegistrationForm>
-                </ExpandableComponent>
-  
-                <ExpandableComponent
-                  title="Connect to Salt Master"
-                  :maxComponents="1"
-                  :displaysAtBegin="elementNumber(SaltForm)"
-                >
-                  <SaltForm></SaltForm>
-                </ExpandableComponent>
+		<hr class="divider-long" />
+
+              <div style="width: 100% !important" class="text-white">
+                <h4>Antenna details</h4>
+
+                <div>
+                  <AntennaForm></AntennaForm>
+                </div>
+              </div>
+
+		<hr class="divider-long" />
 
                 <ExpandableComponent
-                  title="Set S390 Channels"
-                  :displaysAtBegin="elementNumber(S390ChannelForm)"
+                  title="Feed ADS-B data to Beast-compatible aggregators"
+                  :displaysAtBegin="elementNumber(BeastForm)"
+                  :maxComponents="1"
                 >
-                  <S390ChannelForm></S390ChannelForm>
+                  <BeastForm></BeastForm>
+                </ExpandableComponent>
+
+		<hr class="divider-long" />
+
+                <ExpandableComponent
+                  title="Enable Flightradar24 data sharing (for-profit service)"
+                  :displaysAtBegin="elementNumber(Flightradar24Form)"
+                  :maxComponents="1"
+                >
+                  <Flightradar24Form></Flightradar24Form>
                 </ExpandableComponent>
 
 		<hr class="divider-long" />
